@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Lumen.App.Controls.CompareViewer"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <!-- 画布：ScrollViewer 承载缩放/平移，内部 ImageHost 按“像素尺寸 × 缩放”排版。
+         对比模式时结果图叠在原图上，只用 Clip 露出分隔线右侧。 -->
+    <Grid x:Name="Root" Background="{ThemeResource EditorCanvasBrush}">
+        <ScrollViewer
+            x:Name="Scroller"
+            HorizontalScrollBarVisibility="Auto"
+            HorizontalScrollMode="Enabled"
+            VerticalScrollBarVisibility="Auto"
+            VerticalScrollMode="Enabled"
+            ZoomMode="Disabled"
+            IsTabStop="False"
+            SizeChanged="OnScrollerSizeChanged">
+            <Grid x:Name="ScrollContent" Background="Transparent">
+                <Grid
+                    x:Name="ImageHost"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="Transparent"
+                    PointerPressed="OnImageHostPointerPressed"
+                    PointerMoved="OnImageHostPointerMoved"
+                    PointerReleased="OnImageHostPointerReleased"
+                    PointerCanceled="OnImageHostPointerReleased"
+                    PointerCaptureLost="OnImageHostPointerReleased">
+                    <Image x:Name="OriginalImageElement" Stretch="Fill" />
+                    <Image x:Name="ResultImageElement" Stretch="Fill" Visibility="Collapsed" />
+
+                    <Grid x:Name="CompareOverlay" Background="Transparent" Visibility="Collapsed">
+                        <Canvas x:Name="DividerLayer">
+                            <Border
+                                x:Name="DividerLine"
+                                Width="2"
+                                Background="{ThemeResource CompareDividerBrush}" />
+                            <Ellipse
+                                x:Name="DividerHandle"
+                                Width="24"
+                                Height="24"
+                                Fill="{ThemeResource CompareDividerBrush}" />
+                        </Canvas>
+
+                        <Border
+                            Margin="8"
+                            Padding="8,2"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            Background="{ThemeResource CompareLabelBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock
+                                FontSize="12"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                Text="原图" />
+                        </Border>
+
+                        <Border
+                            Margin="8"
+                            Padding="8,2"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Background="{ThemeResource CompareLabelBackgroundBrush}"
+                            CornerRadius="4">
+                            <TextBlock
+                                FontSize="12"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                Text="处理后" />
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

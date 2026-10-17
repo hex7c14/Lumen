@@ -1,0 +1,43 @@
+# build output
+bin/
+obj/
+artifacts/
+.vs/
+*.user
+*.suo
+*.log
+
+# model weights are deliverables, not repo content
+models/**/*.onnx
+models/**/*.pth
+models/**/*.safetensors
+models/**/*.bin
+
+# local tool downloads
+tools/**/venv/
+tools/**/.venv/
+tools/**/__pycache__/
+tools/**/.uv/
+refs/
+spike/
+
+# test output
+TestResults/
+*.trx
+*.coverage
+
+# OS
+Thumbs.db
+desktop.ini
+
+# model pipeline downloaded weights / python caches
+tools/**/weights/
+*.pth
+*.onnx.tmp
+tools/**/samples/
+tools/**/out/
+var/
+_probe_*.py
+tools/**/uv/
+tools/**/.venv/
+tools/**/venv/

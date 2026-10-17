@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <!-- Shared settings for every project in the repo. -->
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <Deterministic>true</Deterministic>
+    <DebugType>portable</DebugType>
+    <SatelliteResourceLanguages>zh-Hans;en</SatelliteResourceLanguages>
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+    <!-- No package versions outside the csproj files on purpose: WinUI + ORT have tight
+         version coupling and central package management adds friction here. -->
+  </PropertyGroup>
+</Project>

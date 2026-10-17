@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Lumen.App/Lumen.App.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/Lumen.Cli/Lumen.Cli.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/Lumen.Core.Tests/Lumen.Core.Tests.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/Lumen.Core/Lumen.Core.csproj" />
+  </Folder>
+</Solution>

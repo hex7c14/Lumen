@@ -1,0 +1,183 @@
+{
+  "models": {
+    "realesr-cugan-4x-conservative": {
+      "meta": {
+        "id": "realesr-cugan-4x-conservative",
+        "displayName": "CUGAN 保真",
+        "description": "Real-CUGAN 4x 保守/保真档（等价 noise=-1）：线条锐利、纹理保留好、处理痕迹少；适合干净的插画与动画截图",
+        "scale": 4,
+        "arch": "cugan",
+        "qualityTier": "quality",
+        "recommendedFor": [
+          "anime"
+        ],
+        "inputLayout": "NCHW",
+        "outputLayout": "NCHW",
+        "dynamicAxes": true,
+        "files": {
+          "fp32": "model.onnx",
+          "fp16": "model.fp16.onnx"
+        },
+        "sha256": {
+          "model.onnx": "00c42c4f3265919f6fb874837adbe198d8b21d711bf7b96934277547311d9027",
+          "model.fp16.onnx": "ce6e53d9414be3491377f7e9a746d1179e3b80e8a82ba70c68d9a0f0d5f18bb5"
+        },
+        "sizeBytes": 5651625,
+        "sourceUrl": "https://github.com/bilibili/ailab/releases/download/Real-CUGAN/updated_weights.zip",
+        "license": "MIT",
+        "author": "bilibili (Real-CUGAN)",
+        "isDefault": true
+      },
+      "quality": {
+        "anime-01-schoolgirl-cc0-rawpixel.jpg": {
+          "psnr_fp32": 24.64,
+          "ssim_fp32": 0.9325,
+          "psnr_fp16": 24.64,
+          "ssim_fp16": 0.9325
+        },
+        "anime-02-knight-cc0-rawpixel.jpg": {
+          "psnr_fp32": 28.84,
+          "ssim_fp32": 0.9586,
+          "psnr_fp16": 28.85,
+          "ssim_fp16": 0.9586
+        },
+        "anime-03-schoolgirl2-cc0-rawpixel.jpg": {
+          "psnr_fp32": 24.66,
+          "ssim_fp32": 0.9305,
+          "psnr_fp16": 24.66,
+          "ssim_fp16": 0.9305
+        }
+      },
+      "fp16_vs_fp32": {
+        "psnr_db": 66.25,
+        "ssim": 0.9999,
+        "max_abs_diff_255": 1
+      }
+    },
+    "realesr-cugan-4x-denoise": {
+      "meta": {
+        "id": "realesr-cugan-4x-denoise",
+        "displayName": "CUGAN 去噪",
+        "description": "Real-CUGAN 4x 降噪档（官方 4x 最强去噪，noise=3）：适合噪点多/压缩痕迹重的动漫截图；干净插画可能损失细节",
+        "scale": 4,
+        "arch": "cugan",
+        "qualityTier": "quality",
+        "recommendedFor": [
+          "anime"
+        ],
+        "inputLayout": "NCHW",
+        "outputLayout": "NCHW",
+        "dynamicAxes": true,
+        "files": {
+          "fp32": "model.onnx",
+          "fp16": "model.fp16.onnx"
+        },
+        "sha256": {
+          "model.onnx": "6300c584c32c964218353cbefe879b8b5ef865f7f2a38198a6e2ba33928ce7ac",
+          "model.fp16.onnx": "0e9597314507c2e1ff73fbdada4165a64ab1a0b123c3e0217ae226ffc3442ca4"
+        },
+        "sizeBytes": 5651625,
+        "sourceUrl": "https://github.com/bilibili/ailab/releases/download/Real-CUGAN/updated_weights.zip",
+        "license": "MIT",
+        "author": "bilibili (Real-CUGAN)"
+      },
+      "quality": {
+        "anime-01-schoolgirl-cc0-rawpixel.jpg": {
+          "psnr_fp32": 22.85,
+          "ssim_fp32": 0.9078,
+          "psnr_fp16": 22.85,
+          "ssim_fp16": 0.9078
+        },
+        "anime-02-knight-cc0-rawpixel.jpg": {
+          "psnr_fp32": 27.33,
+          "ssim_fp32": 0.9494,
+          "psnr_fp16": 27.33,
+          "ssim_fp16": 0.9494
+        },
+        "anime-03-schoolgirl2-cc0-rawpixel.jpg": {
+          "psnr_fp32": 22.93,
+          "ssim_fp32": 0.9071,
+          "psnr_fp16": 22.93,
+          "ssim_fp16": 0.907
+        }
+      },
+      "fp16_vs_fp32": {
+        "psnr_db": 63.21,
+        "ssim": 0.9997,
+        "max_abs_diff_255": 1
+      }
+    },
+    "realesrgan-anime-6b": {
+      "meta": {
+        "id": "realesrgan-anime-6b",
+        "displayName": "动漫插画",
+        "description": "6 个 RRDB 块的动漫画风模型，线条干净、速度与质量均衡",
+        "scale": 4,
+        "arch": "rrdb",
+        "qualityTier": "quality",
+        "recommendedFor": [
+          "anime"
+        ],
+        "inputLayout": "NCHW",
+        "outputLayout": "NCHW",
+        "dynamicAxes": true,
+        "files": {
+          "fp32": "model.onnx",
+          "fp16": "model.fp16.onnx"
+        },
+        "sha256": {
+          "model.onnx": "100cc25580a2b53215fd6dd167d06b535c4540737f6ab162d28c9dc4c0ee2dfa",
+          "model.fp16.onnx": "8a34025d9c7851f2e5b8ff2b23ebbc435395e05d0fc9fc4343d2792ca3ba2aad"
+        },
+        "sizeBytes": 17939969,
+        "sourceUrl": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth",
+        "license": "BSD-3-Clause",
+        "author": "Xintao Wang / Real-ESRGAN"
+      },
+      "quality": {
+        "anime-01-schoolgirl-cc0-rawpixel.jpg": {
+          "psnr_fp32": 22.91,
+          "ssim_fp32": 0.92,
+          "psnr_fp16": 22.91,
+          "ssim_fp16": 0.9201
+        },
+        "anime-02-knight-cc0-rawpixel.jpg": {
+          "psnr_fp32": 24.7,
+          "ssim_fp32": 0.9407,
+          "psnr_fp16": 24.65,
+          "ssim_fp16": 0.9406
+        },
+        "anime-03-schoolgirl2-cc0-rawpixel.jpg": {
+          "psnr_fp32": 22.9,
+          "ssim_fp32": 0.918,
+          "psnr_fp16": 22.9,
+          "ssim_fp16": 0.918
+        }
+      },
+      "fp16_vs_fp32": {
+        "psnr_db": 60.16,
+        "ssim": 0.9997,
+        "max_abs_diff_255": 4
+      }
+    }
+  },
+  "samples": [
+    "anime-01-schoolgirl-cc0-rawpixel.jpg",
+    "anime-02-knight-cc0-rawpixel.jpg",
+    "anime-03-schoolgirl2-cc0-rawpixel.jpg"
+  ],
+  "lanczos": {
+    "anime-01-schoolgirl-cc0-rawpixel.jpg": {
+      "psnr": 20.81,
+      "ssim": 0.8436
+    },
+    "anime-02-knight-cc0-rawpixel.jpg": {
+      "psnr": 25.07,
+      "ssim": 0.9102
+    },
+    "anime-03-schoolgirl2-cc0-rawpixel.jpg": {
+      "psnr": 20.83,
+      "ssim": 0.8428
+    }
+  }
+}

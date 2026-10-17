@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="Lumen.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="using:Lumen.App.Views"
+    Title="Lumen">
+
+    <Grid x:Name="RootGrid" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!--  Mica/亚克力都不可用时的纯色兜底（主题资源，浅色/深色/高对比度各自正确）。  -->
+        <Border
+            x:Name="FallbackBackground"
+            Grid.RowSpan="2"
+            Background="{ThemeResource WindowFallbackBackgroundBrush}"
+            Visibility="Collapsed" />
+
+        <!--  自定义标题栏：应用标记 + 应用名 + 副标题；右侧系统信息入口，再右边是系统标题按钮。  -->
+        <Grid
+            x:Name="AppTitleBar"
+            Grid.Row="0"
+            Padding="16,0,142,0"
+            Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="8">
+                <Image
+                    Width="20"
+                    Height="20"
+                    AutomationProperties.Name="Lumen 图标"
+                    Source="Assets/AppIcon-256.png" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    Text="Lumen" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontSize="12"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Text="二次元插画超分" />
+            </StackPanel>
+
+            <Button
+                x:Name="SystemInfoButton"
+                Grid.Column="2"
+                Width="32"
+                Height="32"
+                Padding="0"
+                VerticalAlignment="Center"
+                AutomationProperties.AutomationId="BtnSystemInfo"
+                AutomationProperties.Name="系统信息"
+                Background="Transparent"
+                BorderThickness="0"
+                Click="OnSystemInfoClick"
+                ToolTipService.ToolTip="系统信息">
+                <FontIcon FontSize="14" Glyph="&#xE946;" />
+            </Button>
+        </Grid>
+
+        <views:EditorView x:Name="Editor" Grid.Row="1" />
+    </Grid>
+</Window>

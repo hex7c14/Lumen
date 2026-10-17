@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <RootNamespace>Lumen.Core</RootNamespace>
+    <AssemblyName>Lumen.Core</AssemblyName>
+    <Description>Lumen 图像超分辨率核心引擎：图像编解码、模型目录、ONNX Runtime 推理、分块拼接、设置。</Description>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 图像编解码与高质量重采样。Skia 覆盖 PNG/JPEG/WebP/BMP/GIF。 -->
+    <PackageReference Include="SkiaSharp" Version="4.153.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="4.153.1" />
+    <!-- 端侧 GPU 推理：DirectML EP 走 D3D12，无需 CUDA 工具链；CPU EP 作为回退。 -->
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.DirectML" Version="1.24.4" />
+  </ItemGroup>
+
+</Project>

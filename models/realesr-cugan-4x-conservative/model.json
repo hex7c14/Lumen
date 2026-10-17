@@ -1,0 +1,27 @@
+{
+    "id":  "realesr-cugan-4x-conservative",
+    "displayName":  "动漫插画（均衡）",
+    "description":  "Real-CUGAN 4x 保真档（官方 up4x-latest-conservative，等价 noise=-1）：线条锐利、色块干净、处理痕迹少；质量、速度、体积综合最优。",
+    "scale":  4,
+    "arch":  "cugan",
+    "qualityTier":  "balanced",
+    "recommendedFor":  [
+                           "anime"
+                       ],
+    "inputLayout":  "NCHW",
+    "outputLayout":  "NCHW",
+    "dynamicAxes":  true,
+    "files":  {
+                  "fp32":  "model.onnx",
+                  "fp16":  "model.fp16.onnx"
+              },
+    "sha256":  {
+                   "model.onnx":  "177c834e63f3e9adf6c49e000ea7b403a27b51b6a6bac1dc793f58dd2569a76f",
+                   "model.fp16.onnx":  "1071b0b8fb57a955b09a47b20f4e159d63e894a3c5d79f6a0770b123d350f84d"
+               },
+    "sizeBytes":  5653662,
+    "sourceUrl":  "https://github.com/bilibili/ailab/tree/main/Real-CUGAN",
+    "license":  "MIT",
+    "author":  "bilibili (Real-CUGAN)",
+    "isDefault":  true
+}

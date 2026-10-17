@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="Lumen.App.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- 语义化主题资源：颜色按用途命名，Light / Dark / HighContrast 三套都给。
+                 其余颜色一律使用 WinUI 内置主题刷子（TextFillColor* / ControlFillColor* /
+                 CardBackgroundFillColor* / LayerFillColor* / DividerStrokeColor* / AccentFillColor*）。 -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="EditorCanvasBrush" Color="#F4F4F4" />
+                    <SolidColorBrush x:Key="CompareDividerBrush" Color="#0078D4" />
+                    <SolidColorBrush x:Key="CompareLabelBackgroundBrush" Color="#B3FFFFFF" />
+                    <SolidColorBrush x:Key="WindowFallbackBackgroundBrush" Color="#F3F3F3" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="EditorCanvasBrush" Color="#181818" />
+                    <SolidColorBrush x:Key="CompareDividerBrush" Color="#5CC8FF" />
+                    <SolidColorBrush x:Key="CompareLabelBackgroundBrush" Color="#B31F1F1F" />
+                    <SolidColorBrush x:Key="WindowFallbackBackgroundBrush" Color="#202020" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="HighContrast">
+                    <SolidColorBrush x:Key="EditorCanvasBrush" Color="{ThemeResource SystemColorWindowColor}" />
+                    <!-- 高对比度下标签底必须与画布（SystemColorWindowColor）区分开 -->
+                    <SolidColorBrush x:Key="CompareDividerBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+                    <SolidColorBrush x:Key="CompareLabelBackgroundBrush" Color="{ThemeResource SystemColorButtonFaceColor}" />
+                    <SolidColorBrush x:Key="WindowFallbackBackgroundBrush" Color="{ThemeResource SystemColorWindowColor}" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

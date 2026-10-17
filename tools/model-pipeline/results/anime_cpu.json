@@ -1,0 +1,59 @@
+{
+  "realesr-cugan-4x-conservative": {
+    "load_s": 0.06,
+    "threads_default": 32,
+    "128": {
+      "median_s": 0.24,
+      "min_s": 0.23,
+      "runs": 3
+    },
+    "256": {
+      "median_s": 0.91,
+      "min_s": 0.85,
+      "runs": 3
+    },
+    "512": {
+      "median_s": 3.32,
+      "min_s": 3.19,
+      "runs": 2
+    }
+  },
+  "realesr-cugan-4x-denoise": {
+    "load_s": 0.13,
+    "threads_default": 32,
+    "128": {
+      "median_s": 0.31,
+      "min_s": 0.29,
+      "runs": 3
+    },
+    "256": {
+      "median_s": 1.09,
+      "min_s": 0.92,
+      "runs": 3
+    },
+    "512": {
+      "median_s": 3.2,
+      "min_s": 2.96,
+      "runs": 2
+    }
+  },
+  "realesrgan-anime-6b": {
+    "load_s": 0.16,
+    "threads_default": 32,
+    "128": {
+      "median_s": 0.82,
+      "min_s": 0.81,
+      "runs": 3
+    },
+    "256": {
+      "median_s": 3.05,
+      "min_s": 3.03,
+      "runs": 3
+    },
+    "512": {
+      "median_s": 14.19,
+      "min_s": 12.94,
+      "runs": 2
+    }
+  }
+}
