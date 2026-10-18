@@ -14,8 +14,9 @@
 ## 0. 结论（TL;DR）
 
 1. **唯一可靠的运行方式**：`WindowsPackageType=None`（unpackaged）+ `WindowsAppSDKSelfContained=true`
-   + `SelfContained=true`（.NET 也自包含）+ `Platform/PlatformTarget=x64` + `RuntimeIdentifier=win-x64`，
-   `dotnet build` 之后**直接运行 exe**。不需要 Dev Mode、不需要管理员、不需要 MSIX 部署、不需要 VS/Windows SDK。
+   + `SelfContained=true`（.NET 也自包含）+ `Platform/PlatformTarget=x64|ARM64`
+   + `RuntimeIdentifier=win-x64|win-arm64`，`dotnet build` 之后**直接运行 exe**。
+   不需要 Dev Mode、不需要管理员、不需要 MSIX 部署、不需要 VS/Windows SDK。
 2. **Packaged（MSIX）开发部署在本机不可用**：`winapp run` 在 packaged 项目上构建成功后失败，错误为
    `Developer Mode is not enabled on this machine. Please enable Developer Mode and try again.`。
    MSIX 生产打包本身不需要 Dev Mode，但本机不能安装/运行 packaged 应用。
@@ -80,8 +81,8 @@ Test-Path 'C:\Program Files (x86)\Windows Kits\10' # False
 | 项 | 值 |
 |---|---|
 | TFM | `net10.0-windows10.0.26100.0`（`TargetPlatformMinVersion` 10.0.17763.0） |
-| Platform / PlatformTarget | `x64` / `x64`（**禁止 AnyCPU**，否则 0x8007000B bad image） |
-| RuntimeIdentifier | `win-x64`，`SelfContained=true` |
+| Platform / PlatformTarget | `x64` / `x64` 或 `ARM64` / `ARM64`（**禁止 AnyCPU**，否则 0x8007000B bad image；默认跟随本机架构） |
+| RuntimeIdentifier | `win-x64` / `win-arm64`，`SelfContained=true` |
 | 部署形态 | `WindowsPackageType=None`（unpackaged），`WindowsAppSDKSelfContained=true` |
 | Microsoft.WindowsAppSDK | **2.5.1**（2.x 起为元包，自动带以下子包） |
 | 　├ Microsoft.WindowsAppSDK.WinUI | 2.3.9（WinUI 控件 + `MicaBackdrop` 等） |
@@ -94,7 +95,7 @@ Test-Path 'C:\Program Files (x86)\Windows Kits\10' # False
 | Microsoft.Windows.SDK.BuildTools.WinUIAnalyzer | **0.7.1**（`PrivateAssets="all"`，官方推荐的 WinUI 分析器） |
 | 传递依赖 | Microsoft.Web.WebView2 1.0.3719.77；Microsoft.Windows.SDK.NET.Ref 10.0.26100.57（SDK 自动） |
 | .NET 运行时 | 10.0.13，随 exe 一起输出（.NET 自包含） |
-| 构建输出 | `bin\x64\Debug\net10.0-windows10.0.26100.0\win-x64\`，约 **541 个文件 / 231 MB**（.NET 运行时 + WinAppSDK 全量组件自包含，含 AI/ML/Widgets 子包；体积偏大但可直接拷贝运行、无需任何机器级安装） |
+| 构建输出 | `bin\x64\Debug\net10.0-windows10.0.26100.0\win-x64\`（ARM64：`bin\ARM64\...\win-arm64\`），约 **541 个文件 / 231 MB**（.NET 运行时 + WinAppSDK 全量组件自包含，含 AI/ML/Widgets 子包；体积偏大但可直接拷贝运行、无需任何机器级安装） |
 
 ### 2.2 csproj 关键片段（可直接抄进 Lumen.App）
 
@@ -111,9 +112,11 @@ Test-Path 'C:\Program Files (x86)\Windows Kits\10' # False
     <WindowsPackageType>None</WindowsPackageType>          <!-- unpackaged：不生成/部署 MSIX -->
     <EnableMsixTooling>false</EnableMsixTooling>           <!-- 不让 Package.appxmanifest 参与构建 -->
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>  <!-- WinAppSDK 运行时随包输出 -->
-    <Platforms>x64</Platforms>
-    <PlatformTarget>x64</PlatformTarget>                   <!-- 绝不 AnyCPU -->
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <Platforms>x64;ARM64</Platforms>
+    <PlatformTarget Condition="'$(Platform)' == 'ARM64'">ARM64</PlatformTarget>
+    <PlatformTarget Condition="'$(PlatformTarget)' == ''">x64</PlatformTarget>  <!-- 绝不 AnyCPU -->
+    <RuntimeIdentifier Condition="'$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>                    <!-- .NET 也自包含（本机 .NET 是目录版，必须） -->
 
     <!-- 注意：不要保留模板里的 <PublishProfile ...> 属性！

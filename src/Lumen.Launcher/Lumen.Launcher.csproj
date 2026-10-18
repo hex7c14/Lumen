@@ -8,9 +8,9 @@
     <AssemblyName>Lumen</AssemblyName>
     <RootNamespace>Lumen.Launcher</RootNamespace>
     <ApplicationIcon>..\Lumen.App\Assets\AppIcon.ico</ApplicationIcon>
-    <Platforms>x64</Platforms>
-    <PlatformTarget>x64</PlatformTarget>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <!-- Platform / PlatformTarget / RuntimeIdentifier 由 Directory.Build.props 根据
+         -p:Platform=x64|ARM64 统一决定（默认跟随本机架构）。 -->
+    <RuntimeIdentifier>$(LumenRuntimeIdentifier)</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>true</PublishTrimmed>

@@ -10,6 +10,12 @@
 #   powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Publish       # 发布可运行产物到 artifacts\Lumen
 #   powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Publish -Zip  # 同时打包为 zip
 #
+# 架构：
+#   -Architecture auto|x64|arm64（默认 auto = 当前 Windows 机器架构）
+#   x64         -> artifacts\Lumen、artifacts\Lumen-win-x64.zip
+#   arm64/ARM64 -> artifacts\Lumen-arm64、artifacts\Lumen-win-arm64.zip
+#   示例：powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Publish -Zip -Architecture arm64
+#
 # 发布布局（根目录干净，运行时收进隐藏的 runtime\）：
 #   artifacts\Lumen\
 #     Lumen.exe          <- 启动器（双击入口，带应用图标）
@@ -20,6 +26,8 @@
 param(
     [ValidateSet("Debug", "Release")]
     [string]$Configuration = "Debug",
+    [ValidateSet("auto", "x64", "arm64")]
+    [string]$Architecture = "auto",
     [switch]$Publish,
     [switch]$Zip,
     [switch]$SkipRestore
@@ -29,6 +37,16 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 Push-Location $root
 try {
+    function Resolve-TargetArchitecture([string]$Value) {
+        if ($Value -ne "auto") { return $Value }
+        if ($env:PROCESSOR_ARCHITECTURE -eq "ARM64") { return "arm64" }
+        return "x64"
+    }
+
+    $targetArchitecture = Resolve-TargetArchitecture $Architecture
+    $platform = if ($targetArchitecture -eq "arm64") { "ARM64" } else { "x64" }
+    $runtimeIdentifier = "win-$targetArchitecture"
+
     $dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
     if (-not $dotnet) {
         $candidate = Join-Path $env:USERPROFILE "dotnet10\dotnet.exe"
@@ -44,23 +62,26 @@ try {
     $env:DOTNET_NOLOGO = "1"
 
     Write-Host "==> dotnet: $dotnet"
+    Write-Host "==> 目标架构：$targetArchitecture（Platform=$platform，RID=$runtimeIdentifier）"
     Write-Host "==> 构建 Lumen.slnx ($Configuration)"
 
-    $buildArgs = @("build", "Lumen.slnx", "-c", $Configuration, "--nologo")
+    $buildArgs = @("build", "Lumen.slnx", "-c", $Configuration, "--nologo", "-p:Platform=$platform")
     if ($SkipRestore) { $buildArgs += "--no-restore" }
     & $dotnet @buildArgs
     if ($LASTEXITCODE -ne 0) { throw "构建失败（退出码 $LASTEXITCODE）。" }
 
     if ($Publish) {
-        $outDir = Join-Path $root "artifacts\Lumen"
+        # x64 保持原路径 artifacts\Lumen（兼容既有文档/脚本）；其它架构追加后缀。
+        $outName = if ($targetArchitecture -eq "x64") { "Lumen" } else { "Lumen-$targetArchitecture" }
+        $outDir = Join-Path $root "artifacts\$outName"
         $runtimeDir = Join-Path $outDir "runtime"
-        Write-Host "==> 发布到 $outDir（根目录：Lumen.exe / models / output / README；运行时目录 runtime 隐藏）"
+        Write-Host "==> 发布 $targetArchitecture 到 $outDir（根目录：Lumen.exe / models / output / README；运行时目录 runtime 隐藏）"
         if (Test-Path $outDir) { Remove-Item $outDir -Recurse -Force }
         New-Item -ItemType Directory -Path $runtimeDir -Force | Out-Null
 
         # 1) 真正的 WinUI 程序与全部运行时依赖 -> runtime\
         & $dotnet publish "src\Lumen.App\Lumen.App.csproj" `
-            -c $Configuration -r win-x64 --self-contained true -p:Platform=x64 `
+            -c $Configuration -r $runtimeIdentifier --self-contained true -p:Platform=$platform `
             -p:WindowsAppSDKSelfContained=true -p:PublishReadyToRun=false `
             -o $runtimeDir --nologo
         if ($LASTEXITCODE -ne 0) { throw "发布失败（退出码 $LASTEXITCODE）。" }
@@ -69,7 +90,7 @@ try {
         #    dotnet publish 不会自动复制；缺失会在启动时抛 XamlParseException。
         #    注意 *.xbf 分布在 Views/、Controls/ 等子目录，必须递归复制并保留相对路径。
         $targetDir = (& $dotnet msbuild "src\Lumen.App\Lumen.App.csproj" `
-            -p:Configuration=$Configuration -p:Platform=x64 -getProperty:TargetDir).Trim()
+            -p:Configuration=$Configuration -p:Platform=$platform -getProperty:TargetDir).Trim()
         if (-not (Test-Path $targetDir)) { throw "找不到构建输出目录：$targetDir" }
 
         $priSource = Join-Path $targetDir "Lumen.pri"
@@ -92,7 +113,7 @@ try {
 
         # 3) 根目录启动器：极小单文件 exe，负责拉起 runtime\Lumen.exe
         & $dotnet publish "src\Lumen.Launcher\Lumen.Launcher.csproj" `
-            -c $Configuration -r win-x64 --self-contained true -p:Platform=x64 `
+            -c $Configuration -r $runtimeIdentifier --self-contained true -p:Platform=$platform `
             -p:PublishSingleFile=true -p:PublishTrimmed=true `
             -o $outDir --nologo
         if ($LASTEXITCODE -ne 0) { throw "启动器发布失败（退出码 $LASTEXITCODE）。" }
@@ -130,26 +151,31 @@ try {
         $runtimeItem.Attributes = $runtimeItem.Attributes -bor [System.IO.FileAttributes]::Hidden
 
         # 7) 自检：启动根目录的 Lumen.exe -> 启动器拉起 runtime\Lumen.exe，等待主窗口出现。
-        $publishedExe = Join-Path $outDir "Lumen.exe"
-        Get-Process -Name Lumen -ErrorAction SilentlyContinue | Stop-Process -Force
-        Start-Process -FilePath $publishedExe -WorkingDirectory $outDir | Out-Null
-        $deadline = (Get-Date).AddSeconds(20)
-        $windowReady = $false
-        while ((Get-Date) -lt $deadline) {
-            Start-Sleep -Milliseconds 500
-            $running = @(Get-Process -Name Lumen -ErrorAction SilentlyContinue |
-                Where-Object { $_.MainWindowHandle -ne [IntPtr]::Zero })
-            if ($running.Count -gt 0) { $windowReady = $true; break }
+        #    交叉编译（如在 x64 上发布 arm64）时本机无法运行产物，跳过自检。
+        if ($targetArchitecture -ne (Resolve-TargetArchitecture "auto")) {
+            Write-Host "==> 跳过启动自检：目标架构 $targetArchitecture 与当前机器架构不一致（交叉编译产物无法在本机运行）。"
+        } else {
+            $publishedExe = Join-Path $outDir "Lumen.exe"
+            Get-Process -Name Lumen -ErrorAction SilentlyContinue | Stop-Process -Force
+            Start-Process -FilePath $publishedExe -WorkingDirectory $outDir | Out-Null
+            $deadline = (Get-Date).AddSeconds(20)
+            $windowReady = $false
+            while ((Get-Date) -lt $deadline) {
+                Start-Sleep -Milliseconds 500
+                $running = @(Get-Process -Name Lumen -ErrorAction SilentlyContinue |
+                    Where-Object { $_.MainWindowHandle -ne [IntPtr]::Zero })
+                if ($running.Count -gt 0) { $windowReady = $true; break }
+            }
+            Get-Process -Name Lumen -ErrorAction SilentlyContinue | Stop-Process -Force
+            if (-not $windowReady) {
+                throw "发布产物启动自检失败：未能通过启动器打开主窗口。请查看 $env:LOCALAPPDATA\Lumen\logs\lumen.log。"
+            }
+            Write-Host "==> 启动自检通过（启动器 + runtime 主窗口已出现）"
         }
-        Get-Process -Name Lumen -ErrorAction SilentlyContinue | Stop-Process -Force
-        if (-not $windowReady) {
-            throw "发布产物启动自检失败：未能通过启动器打开主窗口。请查看 $env:LOCALAPPDATA\Lumen\logs\lumen.log。"
-        }
-        Write-Host "==> 启动自检通过（启动器 + runtime 主窗口已出现）"
 
-        # 8) 可选：打包 zip（保留隐藏 runtime；整个 artifacts\Lumen 目录）
+        # 8) 可选：打包 zip（保留隐藏 runtime；整个发布目录）
         if ($Zip) {
-            $zipPath = Join-Path $root "artifacts\Lumen-win-x64.zip"
+            $zipPath = Join-Path $root "artifacts\Lumen-win-$targetArchitecture.zip"
             if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
             Add-Type -AssemblyName System.IO.Compression.FileSystem
             [System.IO.Compression.ZipFile]::CreateFromDirectory(

@@ -7,7 +7,7 @@
 
 ```
 Lumen.slnx                    解决方案（.NET 10 新格式）
-Directory.Build.props         公共编译属性（x64、nullable、implicit usings）
+Directory.Build.props         公共编译属性（x64/ARM64、nullable、implicit usings）
 global.json                   固定 SDK 10.0.402
 src/
   Lumen.Core/                 纯 .NET 核心：编解码、模型目录、推理引擎、分块、设置、日志
@@ -141,7 +141,7 @@ Lumen.App ──► Lumen.Core ◄── Lumen.Cli
 
 ## 6. CLI 规格（engine-dev）
 
-`src/Lumen.Cli`（net10.0-windows，x64，输出到 console）：
+`src/Lumen.Cli`（net10.0-windows，x64/ARM64，输出到 console）：
 
 ```
 Lumen.Cli list                                      列出可用模型与默认模型
@@ -176,10 +176,15 @@ Lumen.Cli quality --model <id> --reference <png>   4 倍降采样再超分，算
 
 ```powershell
 $env:Path = "$env:USERPROFILE\dotnet10;" + $env:Path
-dotnet build Lumen.slnx -c Debug           # 编译全部
+dotnet build Lumen.slnx -c Debug           # 编译全部（默认跟随本机架构）
+dotnet build Lumen.slnx -c Debug -p:Platform=ARM64  # 显式构建 ARM64
 dotnet run --project src/Lumen.Cli -- list # CLI 冒烟
 dotnet run --project src/Lumen.App         # 运行 WinUI（unpackaged + self-contained）
 ```
+
+- 平台名：`x64` / `ARM64`（MSBuild 约定，ARM64 需大写）；对应 RID：`win-x64` / `win-arm64`。
+- `Directory.Build.props` 中 `Platform` 缺省值跟随 `RuntimeInformation.OSArchitecture`，因此 ARM64 机器原生构建 ARM64；可通过 `-p:Platform=...` 覆盖。
+- 发布脚本：`scripts/build.ps1 -Architecture auto|x64|arm64`（`auto` 为默认，产物分别是 `artifacts\Lumen`、`artifacts\Lumen-arm64`）。
 
 本机无管理员、无 VS、无 Developer Mode：WinUI 应用必须以 **unpackaged + WindowsAppSDKSelfContained** 方式构建运行；不执行 MSIX 部署。
 
