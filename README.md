@@ -36,8 +36,7 @@ powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Publish -Zip
 # 产物：artifacts\Lumen-win-x64.zip
 ```
 
-运行已发布的 `Lumen.exe` 即可使用（目录约 **263 MB**，zip 约 **107 MB**；含 .NET 运行时、Windows App SDK 与 1 个内置模型；无需安装 .NET，无需管理员权限与开发者模式）。
-
+运行已发布的 `Lumen.exe` 即可使用（目录约 **263 MB**，zip 约 **107 MB**；含 .NET 运行时、Windows App SDK 与 1 个内置模型
 ### 发布版目录结构
 
 解压 `Lumen-win-x64.zip`（或直接分发 `artifacts\Lumen`）后，根目录只有这些可见内容：
@@ -50,12 +49,7 @@ Lumen\
   README.md
   runtime\           ← 隐藏：真正的 WinUI 程序与全部运行时依赖（不要删除/移动）
 ```
-
-- 分发时请**整个文件夹（或 zip）**一起给用户；只发根目录的 `Lumen.exe` 会因为找不到 `runtime\` 而弹窗提示。
-- `runtime\` 默认带隐藏属性；如果解压工具保留了属性，资源管理器里只会看到 exe / models / output / README。
 - 模型路径：根目录的 `models\` 会被自动识别（应用从 `runtime\` 向上查找一级）。
-
-> 发布细节：WinUI 的 `Lumen.pri` 与 `*.xbf` 不在 `dotnet publish` 的默认复制范围，`scripts/build.ps1` 会自动从构建输出补齐（否则启动会报 `XamlParseException`）。发布版已实测双击运行、批量超分、CPU 模式与导出成功，详见 [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md)。
 
 ### 环境要求（仅构建需要）
 
@@ -66,7 +60,7 @@ Lumen\
 | Windows App SDK | 2.5.1（NuGet） | 构建时自动还原 |
 | GPU | 支持 DirectX 12 的显卡（可选） | 无独显/无 D3D12 时用 CPU 兼容模式（较慢） |
 
-不需要 Visual Studio、不需要管理员权限、不需要开发者模式——应用以 unpackaged + self-contained 方式构建运行。
+PS:不要使用 Visual Studio
 
 ## 使用说明
 
