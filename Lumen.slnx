@@ -1,14 +1,34 @@
 <Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <!-- WinUI 3 不支持 AnyCPU，但保留同名解决方案平台并映射到 x64：
+         .slnx 会优先选 Any CPU 作为默认，因此 `dotnet build Lumen.slnx`
+         仍然构建 x64（与原有行为一致）。ARM64 显式传 -p:Platform=ARM64。 -->
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="ARM64" />
+  </Configurations>
   <Folder Name="/src/">
     <Project Path="src/Lumen.App/Lumen.App.csproj">
-      <Platform Project="x64" />
+      <Platform Solution="*|Any CPU" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|ARM64" Project="ARM64" />
     </Project>
     <Project Path="src/Lumen.Cli/Lumen.Cli.csproj">
-      <Platform Project="x64" />
+      <Platform Solution="*|Any CPU" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|ARM64" Project="ARM64" />
     </Project>
     <Project Path="src/Lumen.Core.Tests/Lumen.Core.Tests.csproj">
-      <Platform Project="x64" />
+      <Platform Solution="*|Any CPU" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|ARM64" Project="ARM64" />
     </Project>
-    <Project Path="src/Lumen.Core/Lumen.Core.csproj" />
+    <Project Path="src/Lumen.Core/Lumen.Core.csproj">
+      <Platform Solution="*|Any CPU" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|ARM64" Project="ARM64" />
+    </Project>
   </Folder>
 </Solution>

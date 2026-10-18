@@ -22,7 +22,7 @@
 本机（开发/构建）：
 
 ```powershell
-# 1) 构建
+# 1) 构建（默认跟随本机架构：x64 机器构建 x64，Windows on ARM 构建 ARM64）
 powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 
 # 2) 运行（自动构建并启动）
@@ -30,16 +30,26 @@ powershell -ExecutionPolicy Bypass -File scripts/run.ps1
 
 # 3) 构建可直接分发的目录产物（自带 .NET 运行时与模型）
 powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Publish
-# 产物：artifacts\Lumen\Lumen.exe（根目录只有 exe / models / output / README，运行时在隐藏的 runtime\）
+# 产物：x64 -> artifacts\Lumen\Lumen.exe；ARM64 -> artifacts\Lumen-arm64\Lumen.exe
+# （根目录只有 exe / models / output / README，运行时在隐藏的 runtime\）
 # 4) 同时打包 zip（方便分发）
 powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Publish -Zip
-# 产物：artifacts\Lumen-win-x64.zip
+# 产物：artifacts\Lumen-win-x64.zip / artifacts\Lumen-win-arm64.zip
+
+# 5) 显式选择架构（x64 / arm64；auto 为默认值）
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Publish -Zip -Architecture arm64
+powershell -ExecutionPolicy Bypass -File scripts/run.ps1 -Architecture x64
+# arm64 产物：artifacts\Lumen-arm64\Lumen.exe、artifacts\Lumen-win-arm64.zip
+# 也可以直接传 MSBuild 平台：dotnet build Lumen.slnx -p:Platform=ARM64
 ```
 
-运行已发布的 `Lumen.exe` 即可使用（目录约 **263 MB**，zip 约 **107 MB**；含 .NET 运行时、Windows App SDK 与 1 个内置模型
+运行已发布的 `Lumen.exe` 即可使用（x64 目录约 **263 MB**，zip 约 **107 MB**；含 .NET 运行时、Windows App SDK 与 1 个内置模型；无需安装 .NET，无需管理员权限与开发者模式）。
+
+> **ARM64（Windows on ARM）**：`Lumen.App` 与 `Lumen.Launcher` 会自动使用 `win-arm64` 发布；ONNX Runtime（DirectML）与 SkiaSharp 的 NuGet 包都自带 `win-arm64` 原生库，无需额外下载。`-Architecture auto` 是默认值，因此在 ARM64 机器上直接运行上面的命令即可得到原生 ARM64 产物；在 x64 机器上交叉编译 ARM64 时会跳过启动自检（无法在本机运行）。
+
 ### 发布版目录结构
 
-解压 `Lumen-win-x64.zip`（或直接分发 `artifacts\Lumen`）后，根目录只有这些可见内容：
+解压 `Lumen-win-x64.zip`（或 `Lumen-win-arm64.zip`，或直接分发 `artifacts\Lumen` / `artifacts\Lumen-arm64`）后，根目录只有这些可见内容：
 
 ```
 Lumen\
@@ -49,18 +59,24 @@ Lumen\
   README.md
   runtime\           ← 隐藏：真正的 WinUI 程序与全部运行时依赖（不要删除/移动）
 ```
+
+- 分发时请**整个文件夹（或 zip）**一起给用户；只发根目录的 `Lumen.exe` 会因为找不到 `runtime\` 而弹窗提示。
+- `runtime\` 默认带隐藏属性；如果解压工具保留了属性，资源管理器里只会看到 exe / models / output / README。
 - 模型路径：根目录的 `models\` 会被自动识别（应用从 `runtime\` 向上查找一级）。
+
+> 发布细节：WinUI 的 `Lumen.pri` 与 `*.xbf` 不在 `dotnet publish` 的默认复制范围，`scripts/build.ps1` 会自动从构建输出补齐（否则启动会报 `XamlParseException`）。发布版已实测双击运行、批量超分、CPU 模式与导出成功，详见 [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md)。
 
 ### 环境要求（仅构建需要）
 
 | 项 | 版本 | 说明 |
 |---|---|---|
 | Windows | 10 1903+ / 11 | 需 D3D12 才有 GPU 加速；也可用 CPU 兼容模式 |
-| .NET SDK | 10.0.402 | 脚本会自动找 `%USERPROFILE%\dotnet10\dotnet.exe` |
+| 架构 | x64 / ARM64 | 默认跟随本机架构；可用 `-Architecture` 或 `-p:Platform` 显式指定 |
+| .NET SDK | 10.0.402 | 脚本会自动找 `%USERPROFILE%\dotnet10\dotnet.exe`（ARM64 机器请安装 ARM64 SDK） |
 | Windows App SDK | 2.5.1（NuGet） | 构建时自动还原 |
 | GPU | 支持 DirectX 12 的显卡（可选） | 无独显/无 D3D12 时用 CPU 兼容模式（较慢） |
 
-PS:不要使用 Visual Studio
+不需要 Visual Studio、不需要管理员权限、不需要开发者模式——应用以 unpackaged + self-contained 方式构建运行。
 
 ## 使用说明
 

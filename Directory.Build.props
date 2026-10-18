@@ -4,8 +4,25 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Platforms>x64</Platforms>
-    <PlatformTarget>x64</PlatformTarget>
+    <!-- WinUI 3 不支持 AnyCPU；同时支持 64 位 x64 与 Windows on ARM (ARM64)。
+         MSBuild 平台名必须是 ARM64（大写），SDK 名称是 win-arm64。 -->
+    <Platforms>x64;ARM64</Platforms>
+
+    <!-- 未显式指定 Platform 时跟随当前 Windows 机器架构：
+         ARM64 机器原生构建 ARM64，其余（x64）机器保持原来的 x64。
+         显式覆盖：dotnet build -p:Platform=x64|ARM64 -->
+    <_LumenHostArchitecture>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)</_LumenHostArchitecture>
+    <Platform Condition="'$(Platform)' == '' and '$(_LumenHostArchitecture)' == 'Arm64'">ARM64</Platform>
+    <Platform Condition="'$(Platform)' == ''">x64</Platform>
+
+    <!-- PlatformTarget 与 Platform 保持一致（AnyCPU 会让 WinUI 报 0x8007000B）。 -->
+    <PlatformTarget Condition="'$(PlatformTarget)' == '' and '$(Platform)' == 'ARM64'">ARM64</PlatformTarget>
+    <PlatformTarget Condition="'$(PlatformTarget)' == ''">x64</PlatformTarget>
+
+    <!-- 需要 RID 的项目（App / Launcher）统一从这里取值。 -->
+    <LumenRuntimeIdentifier Condition="'$(LumenRuntimeIdentifier)' == '' and '$(Platform)' == 'ARM64'">win-arm64</LumenRuntimeIdentifier>
+    <LumenRuntimeIdentifier Condition="'$(LumenRuntimeIdentifier)' == ''">win-x64</LumenRuntimeIdentifier>
+
     <Deterministic>true</Deterministic>
     <DebugType>portable</DebugType>
     <SatelliteResourceLanguages>zh-Hans;en</SatelliteResourceLanguages>
