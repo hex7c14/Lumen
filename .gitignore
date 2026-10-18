@@ -8,10 +8,6 @@ artifacts/
 *.log
 
 # model weights are deliverables, not repo content
-models/**/*.onnx
-models/**/*.pth
-models/**/*.safetensors
-models/**/*.bin
 
 # local tool downloads
 tools/**/venv/
